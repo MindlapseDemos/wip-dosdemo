@@ -8,15 +8,15 @@ bin = demo
 asmsrc += cspr/dbgfont.asm cspr/confont.asm
 bindata = data/loading.img
 
-inc = -I/usr/local/include -Isrc -Isrc/3dgfx -Isrc/rt -Isrc/scr -Isrc/utils \
+inc = -Isrc -Isrc/3dgfx -Isrc/rt -Isrc/scr -Isrc/utils \
 	  -Isrc/glut -Ilibs -Ilibs/imago/src -Ilibs/anim/src -Ilibs/mikmod/include \
-	  -Ilibs/goat3d/include
+	  -Ilibs/goat3d/include -I/usr/local/include
 def = -DMINIGLUT_USE_LIBC -DMIKMOD_STATIC
 warn = -pedantic -Wall -Wno-unused-variable -Wno-unused-function -Wno-address
 #opt = -O3 -ffast-math
 dbg = -g
 
-CFLAGS = $(arch) $(warn) -MMD $(opt) -fno-pie -fno-strict-aliasing $(dbg) $(inc)
+CFLAGS = $(arch) $(warn) -MMD $(opt) -fno-pie -fno-strict-aliasing $(dbg) $(inc) $(def)
 LDFLAGS = $(arch) -no-pie -Llibs/imago -Llibs/anim -Llibs/mikmod -Llibs/goat3d \
 		  -limago -lanim -lmikmod -lgoat3d $(sndlib_$(sys)) -lm
 
@@ -35,7 +35,14 @@ ifeq ($(sys), mingw)
 	LDFLAGS += -static-libgcc -lmingw32 -mconsole -lgdi32 -lwinmm \
 			   -lopengl32
 else
-	LDFLAGS += -lGL -lX11 -lpthread
+	ifeq ($(sys), Darwin)
+		arch =
+		asmsrc =
+		def += -DNO_ASM
+		LDFLAGS += -framework OpenGL -framework GLUT
+	else
+		LDFLAGS += -lGL -lX11 -lpthread
+	endif
 endif
 
 sndlib_Linux = -lasound

@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
+#ifndef __APPLE__
 #include "miniglut.h"
+#else
+#include <GL/glut.h>
+#endif
 #include "demo.h"
 #include "gfx.h"
 #include "gfxutil.h"
